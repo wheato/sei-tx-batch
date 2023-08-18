@@ -16,27 +16,44 @@ async function getWalletData (addr: string) {
   return res.data;
 }
 
+async function sleep (ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function splitArrayIntoGroupsOfTen<T>(arr: T[]): T[][] {
+  const result: T[][] = [];
+  for (let i = 0; i < arr.length; i += 10) {
+    result.push(arr.slice(i, i + 10));
+  }
+  return result;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
   const addrs = req.body.split('\n').map((addr: string) => addr.trim());
+  const splitedAddrs = splitArrayIntoGroupsOfTen<string>(addrs);
   const results = [];
-  for (let i = 0; i < addrs.length; i++) {
+  for (let i = 0; i < splitedAddrs.length; i++) {
     try {
-      const data = await getWalletData(addrs[i]);
-      if (data.status !== 'success') {
-        results.push({ address: addrs[i], status: -1, usdValue: 0});
-        continue;
-      }
-      // 处理数据
-      if (!data.data.tx) {
-        results.push({ address: addrs[i], status: 0, usdValue: 0 });
-        continue;
-      }
-      const tx = data.data.tx;
-      const { usdValue, timestamp } = tx;
-      results.push({ address: addrs[i], status: 1, usdValue, timestamp });
+      const batch = await Promise.all(splitedAddrs[i].map((addr) => getWalletData(addr)));
+      batch.forEach((data) => {
+        if (data.status !== "success") {
+          results.push({ address: addrs[i], status: -1, usdValue: 0 });
+          return;
+        }
+        // 处理数据
+        if (!data.data.tx) {
+          results.push({ address: addrs[i], status: 0, usdValue: 0 });
+          return;
+        }
+        const tx = data.data.tx;
+        const { usdValue, timestamp } = tx;
+        results.push({ address: addrs[i], status: 1, usdValue, timestamp });
+      });
     } catch (err) {
       console.log(err);
       // update
