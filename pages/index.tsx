@@ -60,7 +60,7 @@ export default function Home() {
         </a>
       </p>
       <div className="block mb-2 text-sm font-medium text-gray-300 dark:text-gray-800 text-left">
-        填写要查询的 Sei 地址
+        填写要查询的 Sei 地址 (受限于服务器限制，一次最多查询 50 个)
       </div>
       <textarea
         id="message"
