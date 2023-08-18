@@ -40,24 +40,32 @@ export default async function handler(
   for (let i = 0; i < splitedAddrs.length; i++) {
     try {
       const batch = await Promise.all(splitedAddrs[i].map((addr) => getWalletData(addr)));
-      batch.forEach((data) => {
+      batch.forEach((data, index) => {
         if (data.status !== "success") {
-          results.push({ address: addrs[i], status: -1, usdValue: 0 });
+          results.push({ address: splitedAddrs[i][index], status: -1, usdValue: 0 });
           return;
         }
         // 处理数据
         if (!data.data.tx) {
-          results.push({ address: addrs[i], status: 0, usdValue: 0 });
+          results.push({
+            address: data.data?.wallet?.seiAddress ?? splitedAddrs[i][index],
+            status: 0,
+            usdValue: 0,
+          });
           return;
         }
         const tx = data.data.tx;
         const { usdValue, timestamp } = tx;
-        results.push({ address: addrs[i], status: 1, usdValue, timestamp });
+        results.push({ address: tx.address, status: 1, usdValue, timestamp });
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       // update
-      results.push({ address: addrs[i], status: -1, usdValue: 0 });
+      results.push({
+        address: err.string().slice(0, 10) + "...",
+        status: -1,
+        usdValue: 0,
+      });
     }
   }
   res.status(200).json(results);
