@@ -34,6 +34,7 @@ export default async function handler(
       const { usdValue, timestamp } = tx;
       results.push({ address: addrs[i], status: 1, usdValue, timestamp });
     } catch (err) {
+      console.log(err);
       results.push({ address: addrs[i], status: -1, usdValue: 0 });
     }
   }
