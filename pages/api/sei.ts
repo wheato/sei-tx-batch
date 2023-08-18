@@ -11,17 +11,6 @@ async function getWalletData (addr: string) {
   const res = await axios.get(`${REMOTE_URL}${addr}`, {
     headers: {
       "Content-Type": "application/json",
-      "accept-language": "zh-HK,zh-TW;q=0.9,zh-CN;q=0.8,zh;q=0.7,en;q=0.6",
-      "if-none-match": 'W/"43c-tPzePboJlavsMlxtUPanrVQK8+o"',
-      "sec-ch-ua":
-        '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "document",
-      "sec-fetch-mode": "navigate",
-      "sec-fetch-site": "none",
-      "sec-fetch-user": "?1",
-      "upgrade-insecure-requests": "1",
     },
   });
   return res.data;
