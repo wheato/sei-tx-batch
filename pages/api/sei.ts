@@ -1,9 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-type Data = {
-  name: string
-}
+type Data = any[];
+
 const REMOTE_URL =
   "https://pacific-1.albatross.sei-internal.com/connected?seiAddress=";
 
@@ -61,10 +60,11 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const addrs = req.body.split('\n').map((addr: string) => addr.trim());
+  const results = [];
   for (let i = 0; i < addrs.length; i++) {
     console.log(addrs[i])
     const data = await getWalletData(addrs[i]);
-    console.log(data);
+    results.push(data);
   }
-  res.status(200).json({ name: 'John Doe' })
+  res.status(200).json(results);
 }
